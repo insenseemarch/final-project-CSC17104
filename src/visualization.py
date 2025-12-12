@@ -642,3 +642,62 @@ def plot_addiction_level_radar(groups, variables):
     ax.legend(loc="upper right", bbox_to_anchor=(1.2, 1.1))
     plt.tight_layout()
     plt.show()
+
+# Vẽ biểu đồ Coefficients cho Linear Regression 
+def plot_lr_coefficients(coef_df, title="Linear Regression - Feature Coefficients"):
+
+    plt.figure(figsize=(10, 5))
+    colors = ['skyblue' if c > 0 else 'red' for c in coef_df['Coefficient']]
+    plt.barh(coef_df['Feature'], coef_df['Coefficient'], color=colors, edgecolor='black')
+    plt.axvline(0, color='black', linestyle='--', linewidth=1)  # đường mốc 0
+    plt.xlabel("Coefficient Value")
+    plt.ylabel("Feature")
+    plt.title(title)
+    plt.tight_layout()
+    plt.show()
+
+
+# Vẽ biểu đồ Feature Importance cho Random Forest 
+def plot_rf_feature_importance(fi_df, title="Random Forest - Feature Importance"):
+    
+    plt.figure(figsize=(10, 5))
+    plt.barh(fi_df['Feature'], fi_df['Importance'], color='skyblue', edgecolor='black')
+    for i, val in enumerate(fi_df['Importance']):
+        plt.text(val + 0.005, i, f"{val:.3f}", va='center')
+    plt.xlabel("Importance Score")
+    plt.ylabel("Feature")
+    plt.title(title)
+    plt.tight_layout()
+    plt.show()
+
+# Vẽ biểu đồ so sánh 2 models
+def compare_model_metrics(mae_list, rmse_list, r2_list, model_names=['Linear Regression', 'Random Forest']):
+    
+    metrics = ['MAE', 'RMSE', 'R²']
+    values = [mae_list, rmse_list, r2_list]
+    colors = ['#3498db', '#2ecc71']  # màu cho các model
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))  # 1 row, 3 cột
+
+    for i, metric in enumerate(metrics):
+        axes[i].bar(model_names, values[i], color=colors, edgecolor='black', linewidth=1.5)
+
+        # In giá trị lên trên bar
+        for j, val in enumerate(values[i]):
+            axes[i].text(j, val + 0.01, f'{val:.4f}', ha='center', va='bottom', fontweight='bold')
+
+        # Highlight model tốt nhất
+        if metric == 'R²':
+            best_idx = np.argmax(values[i])  # R² càng cao càng tốt
+        else:
+            best_idx = np.argmin(values[i])  # MAE/RMSE càng thấp càng tốt
+        axes[i].patches[best_idx].set_edgecolor('gold')
+        axes[i].patches[best_idx].set_linewidth(3)
+
+        axes[i].set_ylabel(metric, fontweight='bold')
+        axes[i].set_title(f'{metric} Comparison', fontweight='bold')
+        axes[i].grid(axis='y', alpha=0.3)
+
+    plt.suptitle('Model Performance Comparison', fontsize=14, fontweight='bold')
+    plt.tight_layout()
+    plt.show()
