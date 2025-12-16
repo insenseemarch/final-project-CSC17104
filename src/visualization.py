@@ -135,39 +135,44 @@ def plot_comm_vs_addiction_boxplot(df):
     plt.tight_layout()
     plt.show()
 
-def plot_mental_health_scatter_matrix(df):
-    # Tạo ma trận scatter plot cho 4 biến
-    vars_to_plot = ["Anxiety_Level", "Depression_Level", "Daily_Usage_Hours", "Addiction_Level"]
-    
-    fig, axes = plt.subplots(4, 4, figsize=(14, 14))
-    
-    for i in range(4):
-        for j in range(4):
-            ax = axes[i, j]
-            
-            if i == j:
-                # Đường chéo: vẽ histogram
-                ax.hist(df[vars_to_plot[i]], bins=20, alpha=0.7, edgecolor='black')
-                ax.set_ylabel("Frequency")
-            else:
-                # Ngoài đường chéo: vẽ scatter plot
-                ax.scatter(df[vars_to_plot[j]], df[vars_to_plot[i]], alpha=0.3, s=10)
-                
-                # Thêm đường hồi quy
-                z = np.polyfit(df[vars_to_plot[j]], df[vars_to_plot[i]], 1)
-                p = np.poly1d(z)
-                x_line = np.linspace(df[vars_to_plot[j]].min(), df[vars_to_plot[j]].max(), 100)
-                ax.plot(x_line, p(x_line), "r--", linewidth=1.5, alpha=0.8)
-            
-            # Label cho trục
-            if i == 3:
-                ax.set_xlabel(vars_to_plot[j], fontsize=10)
-            if j == 0:
-                ax.set_ylabel(vars_to_plot[i], fontsize=10)
-            
-            ax.grid(alpha=0.3)
-    
-    plt.suptitle("Scatter Plot Matrix: Mental Health vs Phone Usage", fontsize=16, y=0.995)
+def plot_mental_health_scatter(df):
+    """
+    Vẽ scatter plots kiểm tra mối quan hệ giữa sức khỏe tâm thần
+    (Anxiety, Depression) và hành vi sử dụng điện thoại
+    (Daily Usage, Addiction Level).
+    """
+    pairs = [
+        ("Anxiety_Level", "Daily_Usage_Hours"),
+        ("Anxiety_Level", "Addiction_Level"),
+        ("Depression_Level", "Daily_Usage_Hours"),
+        ("Depression_Level", "Addiction_Level"),
+    ]
+
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    axes = axes.flatten()
+
+    for ax, (x_var, y_var) in zip(axes, pairs):
+        x = df[x_var]
+        y = df[y_var]
+
+        ax.scatter(x, y, alpha=0.4, s=15)
+
+        # Đường hồi quy tuyến tính
+        z = np.polyfit(x, y, 1)
+        p = np.poly1d(z)
+        x_line = np.linspace(x.min(), x.max(), 100)
+        ax.plot(x_line, p(x_line), "r--", linewidth=2)
+
+        ax.set_xlabel(x_var)
+        ax.set_ylabel(y_var)
+        ax.set_title(f"{x_var} vs {y_var}")
+        ax.grid(alpha=0.3)
+
+    plt.suptitle(
+        "Mental Health vs Phone Usage",
+        fontsize=16,
+        fontweight="bold"
+    )
     plt.tight_layout()
     plt.show()
 
@@ -434,7 +439,7 @@ def plot_screen_before_bed_scatter(df):
 
 def plot_screen_before_bed_analysis(df):
     """Vẽ 4 boxplot so sánh ảnh hưởng của Screen Time Before Bed đến Sleep, Academic, Anxiety, Depression"""
-    # Chia thành 3 nhóm theo phân vị (giống các câu trước)
+    # Chia thành 3 nhóm theo phân vị
     q33 = df["Screen_Time_Before_Bed"].quantile(0.33)
     q67 = df["Screen_Time_Before_Bed"].quantile(0.67)
     
@@ -503,63 +508,38 @@ def plot_screen_before_bed_analysis(df):
     plt.tight_layout()
     plt.show()
     
-def plot_addiction_level_boxplots(
-    comparison_vars,
-    low_group,
-    medium_group,
-    high_group
-):
+def plot_addiction_level_boxplots(groups, comparison_vars):
+    group_names = list(groups.keys())
+    group_data = list(groups.values())
+
     fig, axes = plt.subplots(3, 3, figsize=(16, 12))
     axes = axes.flatten()
 
-    # Kiểm tra nhóm nào có dữ liệu
-    groups_with_data = []
-    labels = []
-    colors_to_use = []
-    
-    if len(low_group) > 0:
-        groups_with_data.append(low_group)
-        labels.append("Low")
-        colors_to_use.append("#2ecc71")
-    
-    if len(medium_group) > 0:
-        groups_with_data.append(medium_group)
-        labels.append("Medium")
-        colors_to_use.append("#f39c12")
-    
-    if len(high_group) > 0:
-        groups_with_data.append(high_group)
-        labels.append("High")
-        colors_to_use.append("#e74c3c")
+    colors = ["#2ecc71", "#e74c3c"]  
 
     for idx, var in enumerate(comparison_vars):
         if idx >= len(axes):
             break
-
         ax = axes[idx]
-
-        # Chỉ vẽ nhóm có dữ liệu
-        data_to_plot = [g[var] for g in groups_with_data]
-
-        # Vẽ boxplot
+        data_to_plot = [
+            group_data[0][var],
+            group_data[1][var]
+        ]
         bp = ax.boxplot(data_to_plot, patch_artist=True)
+        ax.set_xticks([1, 2])
+        ax.set_xticklabels(group_names)
 
-        # Set nhãn cho trục X
-        ax.set_xticks(range(1, len(labels) + 1))
-        ax.set_xticklabels(labels)
-
-        # Màu sắc
-        for box, color in zip(bp["boxes"], colors_to_use):
+        for box, color in zip(bp["boxes"], colors):
             box.set_facecolor(color)
 
         ax.set_title(var, fontsize=11, fontweight="bold")
         ax.set_ylabel(var, fontsize=10)
         ax.grid(axis="y", alpha=0.3)
 
-    # Tắt subplot thừa
-    for idx in range(len(comparison_vars), len(axes)):
-        axes[idx].axis("off")
-
+        # Tắt các subplot dư
+        for idx in range(len(comparison_vars), len(axes)):
+            axes[idx].axis("off")
+    
     plt.suptitle(
         "Behavioral / Psychological / Social Factors by Addiction Level",
         fontsize=16,
@@ -569,53 +549,32 @@ def plot_addiction_level_boxplots(
     plt.tight_layout()
     plt.show()
 
+
 def plot_addiction_level_radar(groups, variables):
     """ Vẽ radar chart thể hiện profile đa chiều của 3 nhóm Addiction (Low, Medium, High)."""
-    # Chỉ lấy các nhóm có dữ liệu
-    group_info = [
-        ("Low", "#2ecc71"),
-        ("Medium", "#f39c12"),
-        ("High", "#e74c3c")
-    ]
-    
-    valid_groups = []
-    for name, color in group_info:
-        if name in groups and len(groups[name]) > 0:
-            valid_groups.append((name, color))
-    
-    if len(valid_groups) == 0:
-        print("Không có nhóm nào có dữ liệu để vẽ radar chart!")
-        return
+    group_names = list(groups.keys())
+    group_data = list(groups.values())
+    colors = ["#2ecc71", "#e74c3c"]
 
-    # Tính mean cho từng nhóm có dữ liệu
-    mean_matrix = {}
-    for gname, _ in valid_groups:
-        g = groups[gname]
-        mean_matrix[gname] = [g[var].mean() for var in variables]
+    # Tính mean cho từng nhóm
+    mean_matrix = []
+    for g in group_data:
+        mean_matrix.append([g[var].mean() for var in variables])
 
-    # Normalize theo scale thực của từng biến (absolute normalization)
-    scaled = {g: [] for g, _ in valid_groups}
+    # Normalize theo scale thực (absolute normalization)
+    scaled = [[], []]
 
     for j, var in enumerate(variables):
-        # Xác định max scale của từng biến
-        if var == 'Academic_Performance':
+        if var == "Academic_Performance":
             max_scale = 100
-        elif var in ['Exercise_Hours', 'Time_on_Education']:
-            max_scale = 10  # giờ
-        elif var == 'Sleep_Hours':
-            max_scale = 10  # giờ
-        else:  # Family_Communication, Social_Interactions, Self_Esteem
-            max_scale = 10  # thang điểm 0-10
-        
-        for g, _ in valid_groups:
-            val = mean_matrix[g][j]
-            if np.isnan(val):
-                scaled[g].append(0.0)
-            else:
-                # Normalize về [0, 1] dựa trên max scale thực
-                scaled[g].append(val / max_scale)
+        else:
+            max_scale = 10  # các biến còn lại đều scale 0–10
 
-    # Chuẩn bị góc cho radar
+        for i in range(2):
+            val = mean_matrix[i][j]
+            scaled[i].append(0.0 if np.isnan(val) else val / max_scale)
+
+    # Chuẩn bị góc radar
     num_vars = len(variables)
     angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
     angles += angles[:1]  # đóng vòng
@@ -623,10 +582,11 @@ def plot_addiction_level_radar(groups, variables):
     plt.figure(figsize=(7, 7))
     ax = plt.subplot(111, polar=True)
 
-    for gname, color in valid_groups:
-        values = scaled[gname] + [scaled[gname][0]]
-        ax.plot(angles, values, linewidth=2, label=gname, color=color)
-        ax.fill(angles, values, alpha=0.15, color=color)
+    # Vẽ radar cho từng nhóm
+    for i in range(2):
+        values = scaled[i] + [scaled[i][0]]
+        ax.plot(angles, values, linewidth=2, label=group_names[i], color=colors[i])
+        ax.fill(angles, values, alpha=0.15, color=colors[i])
 
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(variables, fontsize=9)
@@ -639,7 +599,7 @@ def plot_addiction_level_radar(groups, variables):
         pad=20
     )
 
-    ax.legend(loc="upper right", bbox_to_anchor=(1.2, 1.1))
+    ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.1))
     plt.tight_layout()
     plt.show()
 

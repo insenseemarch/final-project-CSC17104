@@ -51,8 +51,6 @@ def check_outliers_all(df):
 
 # 4. Hàm in thống kê mô tả (mean, median) cho các biến câu 4.
 def describe_purposes(df, purposes):
-    print("===== DESCRIPTIVE STATISTICS FOR USAGE PURPOSE =====\n")
-
     for col in purposes:
         mean_val = df[col].mean()
         median_val = df[col].median()
@@ -63,8 +61,6 @@ def describe_purposes(df, purposes):
 
 # 5. Hàm in thống kê mô tả cho các biến câu 5.        
 def describe_screen_time_groups(df):
-    print("\n===== DESCRIPTIVE STATISTICS BY SCREEN-TIME GROUPS =====\n")
-
     # Tính quantile
     q33 = df['Screen_Time_Before_Bed'].quantile(0.33)
     q67 = df['Screen_Time_Before_Bed'].quantile(0.67)
@@ -101,7 +97,6 @@ def describe_screen_time_groups(df):
 
 # 6. Chia mức độ nghiện thành 3 nhóm dựa trên phân vị          
 def split_addiction_by_quantiles(df, low_q=0.33, high_q=0.67):
-    print("===== SPLIT GROUPS =====\n")
     # Tính giá trị phân vị thấp và cao
     q_low = df["Addiction_Level"].quantile(low_q)
     q_high = df["Addiction_Level"].quantile(high_q)
@@ -121,7 +116,6 @@ def split_addiction_by_quantiles(df, low_q=0.33, high_q=0.67):
 
 # 7. Tính thống kê mô tả cho từng biến trong mỗi nhóm nghiện
 def summarize_addiction_groups(groups, variables):
-    print("\n\n===== DESCRIPTIVE STATISTICS =====\n")
     rows = []
 
     for var in variables:
