@@ -59,43 +59,7 @@ def describe_purposes(df, purposes):
         print(f"  Mean:   {mean_val:.2f} hours")
         print(f"  Median: {median_val:.2f} hours\n")
 
-# 5. Hàm in thống kê mô tả cho các biến câu 5.        
-def describe_screen_time_groups(df):
-    # Tính quantile
-    q33 = df['Screen_Time_Before_Bed'].quantile(0.33)
-    q67 = df['Screen_Time_Before_Bed'].quantile(0.67)
-
-    print(f"Quantile boundaries: q33={q33:.2f}, q67={q67:.2f}\n")
-
-    # Chia nhóm 
-    def group_screen(x):
-        if x <= q33:
-            return 'Low'
-        elif x <= q67:
-            return 'Medium'
-        return 'High'
-
-    df_temp = df.copy()
-    df_temp["Screen_Group"] = df_temp["Screen_Time_Before_Bed"].apply(group_screen)
-
-    # Các biến quan tâm
-    target_vars = [
-        "Sleep_Hours",
-        "Academic_Performance",
-        "Anxiety_Level",
-        "Depression_Level"
-    ]
-
-    # Lặp qua từng nhóm
-    for group in ["Low", "Medium", "High"]:
-        g = df_temp[df_temp["Screen_Group"] == group]
-        print(f"\n--- {group} Screen-Time Group ---")
-        print(f"Sample size: {len(g)}")
-
-        for var in target_vars:
-            print(f"{var}: mean={g[var].mean():.2f}, median={g[var].median():.2f}")
-
-# 6. Chia mức độ nghiện thành 3 nhóm dựa trên phân vị          
+# 5. Chia mức độ nghiện thành 3 nhóm dựa trên phân vị          
 def split_addiction_by_quantiles(df, low_q=0.33, high_q=0.67):
     # Tính giá trị phân vị thấp và cao
     q_low = df["Addiction_Level"].quantile(low_q)
@@ -114,7 +78,7 @@ def split_addiction_by_quantiles(df, low_q=0.33, high_q=0.67):
 
     return groups, (q_low, q_high)
 
-# 7. Tính thống kê mô tả cho từng biến trong mỗi nhóm nghiện
+# 6. Tính thống kê mô tả cho từng biến trong mỗi nhóm nghiện
 def summarize_addiction_groups(groups, variables):
     rows = []
 
