@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
 def plot_hist(col, df, bins=20):
     plt.figure(figsize=(6,4))
@@ -605,5 +606,109 @@ def compare_model_metrics(mae_list, rmse_list, r2_list, model_names=['Linear Reg
         axes[i].grid(axis='y', alpha=0.3)
 
     plt.suptitle('Model Performance Comparison', fontsize=14, fontweight='bold')
+    plt.tight_layout()
+    plt.show()
+
+def plot_phone_usage_pie(df):
+    """
+    Vẽ pie chart thể hiện tỷ trọng thời gian sử dụng điện thoại
+    theo từng mục đích: Social Media, Gaming, Education.
+    """
+
+    usage_columns = {
+        "Social Media": "Time_on_Social_Media",
+        "Gaming": "Time_on_Gaming",
+        "Education": "Time_on_Education"
+    }
+
+    # Tính tổng thời gian cho từng mục đích
+    total_usage = [
+        df[col].sum() for col in usage_columns.values()
+    ]
+
+    labels = list(usage_columns.keys())
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(
+        total_usage,
+        labels=labels,
+        autopct="%1.1f%%",
+        startangle=90,
+        wedgeprops={"edgecolor": "white"}
+    )
+
+    plt.title(
+        "Distribution of Phone Usage by Purpose",
+        fontsize=13,
+        fontweight="bold"
+    )
+    plt.tight_layout()
+    plt.show()
+
+def plot_family_addiction_histogram(df):
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+    # Histogram Family_Communication
+    axes[0].hist(
+        df["Family_Communication"],
+        bins=10,
+        edgecolor="black",
+        alpha=0.7
+    )
+    axes[0].set_title("Distribution of Family Communication")
+    axes[0].set_xlabel("Family Communication Level")
+    axes[0].set_ylabel("Frequency")
+    axes[0].grid(axis="y", alpha=0.3)
+
+    # Histogram Addiction_Level
+    axes[1].hist(
+        df["Addiction_Level"],
+        bins=10,
+        edgecolor="black",
+        alpha=0.7
+    )
+    axes[1].set_title("Distribution of Phone Addiction Level")
+    axes[1].set_xlabel("Addiction Level")
+    axes[1].set_ylabel("Frequency")
+    axes[1].grid(axis="y", alpha=0.3)
+
+    plt.suptitle(
+        "Distributions of Family Communication and Phone Addiction",
+        fontsize=13,
+        fontweight="bold"
+    )
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_mental_health_heatmap(df):
+
+    cols = [
+        "Anxiety_Level",
+        "Depression_Level",
+        "Daily_Usage_Hours",
+        "Addiction_Level"
+    ]
+
+    # Tính ma trận tương quan Pearson
+    corr = df[cols].corr(method="pearson")
+
+    plt.figure(figsize=(7, 6))
+    sns.heatmap(
+        corr,
+        annot=True,
+        fmt=".2f",
+        cmap="coolwarm",
+        center=0,
+        linewidths=0.5,
+        square=True
+    )
+
+    plt.title(
+        "Correlation Heatmap: Mental Health vs Phone Usage",
+        fontsize=13,
+        fontweight="bold"
+    )
     plt.tight_layout()
     plt.show()
