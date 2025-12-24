@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
 def plot_hist(col, df, bins=20):
     plt.figure(figsize=(6,4))
@@ -549,60 +550,6 @@ def plot_addiction_level_boxplots(groups, comparison_vars):
     plt.tight_layout()
     plt.show()
 
-
-def plot_addiction_level_radar(groups, variables):
-    """ Vẽ radar chart thể hiện profile đa chiều của 3 nhóm Addiction (Low, Medium, High)."""
-    group_names = list(groups.keys())
-    group_data = list(groups.values())
-    colors = ["#2ecc71", "#e74c3c"]
-
-    # Tính mean cho từng nhóm
-    mean_matrix = []
-    for g in group_data:
-        mean_matrix.append([g[var].mean() for var in variables])
-
-    # Normalize theo scale thực (absolute normalization)
-    scaled = [[], []]
-
-    for j, var in enumerate(variables):
-        if var == "Academic_Performance":
-            max_scale = 100
-        else:
-            max_scale = 10  # các biến còn lại đều scale 0–10
-
-        for i in range(2):
-            val = mean_matrix[i][j]
-            scaled[i].append(0.0 if np.isnan(val) else val / max_scale)
-
-    # Chuẩn bị góc radar
-    num_vars = len(variables)
-    angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
-    angles += angles[:1]  # đóng vòng
-
-    plt.figure(figsize=(7, 7))
-    ax = plt.subplot(111, polar=True)
-
-    # Vẽ radar cho từng nhóm
-    for i in range(2):
-        values = scaled[i] + [scaled[i][0]]
-        ax.plot(angles, values, linewidth=2, label=group_names[i], color=colors[i])
-        ax.fill(angles, values, alpha=0.15, color=colors[i])
-
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(variables, fontsize=9)
-    ax.set_yticklabels([])
-
-    ax.set_title(
-        "Multi-dimensional Profile by Addiction Level (Normalized)",
-        fontsize=14,
-        fontweight="bold",
-        pad=20
-    )
-
-    ax.legend(loc="upper right", bbox_to_anchor=(1.25, 1.1))
-    plt.tight_layout()
-    plt.show()
-
 # Vẽ biểu đồ Coefficients cho Linear Regression 
 def plot_lr_coefficients(coef_df, title="Linear Regression - Feature Coefficients"):
 
@@ -659,5 +606,109 @@ def compare_model_metrics(mae_list, rmse_list, r2_list, model_names=['Linear Reg
         axes[i].grid(axis='y', alpha=0.3)
 
     plt.suptitle('Model Performance Comparison', fontsize=14, fontweight='bold')
+    plt.tight_layout()
+    plt.show()
+
+def plot_phone_usage_pie(df):
+    """
+    Vẽ pie chart thể hiện tỷ trọng thời gian sử dụng điện thoại
+    theo từng mục đích: Social Media, Gaming, Education.
+    """
+
+    usage_columns = {
+        "Social Media": "Time_on_Social_Media",
+        "Gaming": "Time_on_Gaming",
+        "Education": "Time_on_Education"
+    }
+
+    # Tính tổng thời gian cho từng mục đích
+    total_usage = [
+        df[col].sum() for col in usage_columns.values()
+    ]
+
+    labels = list(usage_columns.keys())
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(
+        total_usage,
+        labels=labels,
+        autopct="%1.1f%%",
+        startangle=90,
+        wedgeprops={"edgecolor": "white"}
+    )
+
+    plt.title(
+        "Distribution of Phone Usage by Purpose",
+        fontsize=13,
+        fontweight="bold"
+    )
+    plt.tight_layout()
+    plt.show()
+
+def plot_family_addiction_histogram(df):
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+    # Histogram Family_Communication
+    axes[0].hist(
+        df["Family_Communication"],
+        bins=10,
+        edgecolor="black",
+        alpha=0.7
+    )
+    axes[0].set_title("Distribution of Family Communication")
+    axes[0].set_xlabel("Family Communication Level")
+    axes[0].set_ylabel("Frequency")
+    axes[0].grid(axis="y", alpha=0.3)
+
+    # Histogram Addiction_Level
+    axes[1].hist(
+        df["Addiction_Level"],
+        bins=10,
+        edgecolor="black",
+        alpha=0.7
+    )
+    axes[1].set_title("Distribution of Phone Addiction Level")
+    axes[1].set_xlabel("Addiction Level")
+    axes[1].set_ylabel("Frequency")
+    axes[1].grid(axis="y", alpha=0.3)
+
+    plt.suptitle(
+        "Distributions of Family Communication and Phone Addiction",
+        fontsize=13,
+        fontweight="bold"
+    )
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_mental_health_heatmap(df):
+
+    cols = [
+        "Anxiety_Level",
+        "Depression_Level",
+        "Daily_Usage_Hours",
+        "Addiction_Level"
+    ]
+
+    # Tính ma trận tương quan Pearson
+    corr = df[cols].corr(method="pearson")
+
+    plt.figure(figsize=(7, 6))
+    sns.heatmap(
+        corr,
+        annot=True,
+        fmt=".2f",
+        cmap="coolwarm",
+        center=0,
+        linewidths=0.5,
+        square=True
+    )
+
+    plt.title(
+        "Correlation Heatmap: Mental Health vs Phone Usage",
+        fontsize=13,
+        fontweight="bold"
+    )
     plt.tight_layout()
     plt.show()
