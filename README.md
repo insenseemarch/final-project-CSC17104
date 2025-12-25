@@ -99,6 +99,9 @@ final-project-CSC17104/
 │   ├── models.py                        # Xây dựng & huấn luyện mô hình
 │   └── visualization.py                # Trực quan hóa dữ liệu
 │
+├── document/                             
+│   └── document.pdf
+|
 ├── README.md                             # Mô tả dự án
 └── requirements.txt                     # Danh sách thư viện
 ```
