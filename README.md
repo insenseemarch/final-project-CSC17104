@@ -100,7 +100,7 @@ final-project-CSC17104/
 │   └── visualization.py                # Trực quan hóa dữ liệu
 │
 ├── document/                             
-│   └── document.pdf
+│   └── document.pdf                   # Phân chia công việc và cập nhật tiến độ
 |
 ├── README.md                             # Mô tả dự án
 └── requirements.txt                     # Danh sách thư viện
